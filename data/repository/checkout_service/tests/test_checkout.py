@@ -1,4 +1,4 @@
-from app.checkout import process_checkout
+from data.repository.checkout_service.app.checkout import process_checkout
 
 
 def test_checkout_success():

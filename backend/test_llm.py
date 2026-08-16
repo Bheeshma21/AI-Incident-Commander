@@ -1,4 +1,4 @@
-from llm import ask_llm
+from backend.llm import ask_llm
 
 
 response = ask_llm(
