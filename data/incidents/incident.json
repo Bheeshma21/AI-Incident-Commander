@@ -1,0 +1,21 @@
+{
+  "incident_id": "INC-1042",
+  "title": "Checkout API — Elevated 500 Errors",
+  "service": "checkout-service",
+  "severity": "SEV-2",
+  "status": "investigating",
+  "started_at": "2026-08-16T10:32:00",
+  "detected_at": "2026-08-16T10:35:00",
+  "description": "The Checkout API is experiencing a sudden increase in HTTP 500 errors and elevated request latency.",
+  "symptoms": [
+    "HTTP 500 error rate increased to 18.4%",
+    "Checkout latency increased above 3 seconds",
+    "Database connection usage reached critical levels"
+  ],
+  "investigation_sources": [
+    "data/logs/checkout_api.log",
+    "data/metrics/checkout_metrics.json",
+    "data/deployments/deployment_history.json",
+    "data/repository/checkout_service"
+  ]
+}
