@@ -1,23 +1,6 @@
 import sys
 from pathlib import Path
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
-
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
-
-import streamlit as st
-
-from backend.ai_analysis import analyze_incident
-from backend.tools import (
-    get_incident,
-    get_metrics,
-    get_deployments,
-    search_logs,
-)
-import sys
-from pathlib import Path
-
 # ============================================================
 # PROJECT ROOT / IMPORT PATH
 # ============================================================
@@ -60,18 +43,20 @@ st.set_page_config(
 # SESSION STATE
 # ============================================================
 
+# Every new Streamlit session starts from the active incident
+# state defined by deployment_state.json.
+
 if "analysis" not in st.session_state:
     st.session_state.analysis = None
 
 if "rollback_completed" not in st.session_state:
     st.session_state.rollback_completed = False
 
-if "active_deployment" not in st.session_state:
-    st.session_state.active_deployment = None
-
 if "incident_resolved" not in st.session_state:
     st.session_state.incident_resolved = False
 
+if "active_deployment" not in st.session_state:
+    st.session_state.active_deployment = get_current_deployment()
 
 # ============================================================
 # DEPLOYMENT HELPER
