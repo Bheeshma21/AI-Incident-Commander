@@ -1,3 +1,20 @@
+import sys
+from pathlib import Path
+
+# ============================================================
+# PROJECT ROOT / IMPORT PATH
+# ============================================================
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+
+# ============================================================
+# IMPORTS
+# ============================================================
+
 import streamlit as st
 
 from backend.ai_analysis import analyze_incident
@@ -6,6 +23,8 @@ from backend.tools import (
     get_metrics,
     get_deployments,
     search_logs,
+    get_current_deployment,
+    rollback_deployment,
 )
 
 
@@ -38,17 +57,7 @@ if "incident_resolved" not in st.session_state:
 
 
 # ============================================================
-# LOAD DATA
-# ============================================================
-
-incident = get_incident()
-metrics = get_metrics()
-deployments = get_deployments()
-logs = search_logs("connection")
-
-
-# ============================================================
-# DEPLOYMENT HELPERS
+# DEPLOYMENT HELPER
 # ============================================================
 
 def get_active_deployment(deployment_data):
@@ -64,6 +73,7 @@ def get_active_deployment(deployment_data):
     if isinstance(deployment_data, list):
 
         for deployment in deployment_data:
+
             status = str(
                 deployment.get("status", "")
             ).upper()
@@ -77,14 +87,38 @@ def get_active_deployment(deployment_data):
     elif isinstance(deployment_data, dict):
 
         if "deployments" in deployment_data:
+
             return get_active_deployment(
                 deployment_data["deployments"]
             )
 
         if "active_version" in deployment_data:
+
             return deployment_data["active_version"]
 
     return None
+
+
+# ============================================================
+# LOAD INCIDENT DATA
+# ============================================================
+
+try:
+
+    incident = get_incident()
+    metrics = get_metrics()
+    deployments = get_deployments()
+    logs = search_logs("connection")
+
+except Exception as e:
+
+    st.error(
+        "❌ Failed to load incident data."
+    )
+
+    st.exception(e)
+
+    st.stop()
 
 
 # ============================================================
@@ -96,7 +130,11 @@ detected_deployment = get_active_deployment(
 )
 
 if st.session_state.active_deployment is None:
-    st.session_state.active_deployment = detected_deployment
+
+    st.session_state.active_deployment = (
+        detected_deployment
+        or get_current_deployment()
+    )
 
 active_deployment = (
     st.session_state.active_deployment
@@ -106,28 +144,28 @@ rollback_version = "v1.8.2"
 
 
 # ============================================================
-# POST-ROLLBACK RECOVERY BASELINE
+# SYNC DEPLOYMENT STATE
 # ============================================================
 
-# These represent the known healthy production values
-# after rollback to v1.8.2.
+current_deployment = get_current_deployment()
 
-RECOVERY_BASELINE = {
-    "error_rate_percent": 1.0,
-    "avg_latency_ms": 250,
-    "db_connections": 40,
-    "cpu_percent": 45,
-}
+if current_deployment != active_deployment:
+
+    active_deployment = current_deployment
+
+    st.session_state.active_deployment = (
+        current_deployment
+    )
 
 
 # ============================================================
-# SIMULATED POST-ROLLBACK METRICS
+# POST-ROLLBACK METRICS
 # ============================================================
 
-# For this assignment/demo, once rollback is completed,
-# production metrics are simulated as recovered.
+# The demo simulates healthy production metrics after
+# rollback to v1.8.2.
 
-if st.session_state.rollback_completed:
+if active_deployment == rollback_version:
 
     metrics = {
         "normal_baseline": {
@@ -147,14 +185,30 @@ if st.session_state.rollback_completed:
         ],
     }
 
+    st.session_state.rollback_completed = True
+
 
 # ============================================================
 # METRICS
 # ============================================================
 
-baseline = metrics["normal_baseline"]
+try:
 
-latest = metrics["metrics"][-1]
+    baseline = metrics["normal_baseline"]
+    latest = metrics["metrics"][-1]
+
+except (
+    KeyError,
+    IndexError,
+    TypeError,
+):
+
+    st.error(
+        "❌ Invalid metrics data structure."
+    )
+
+    st.stop()
+
 
 error_rate = latest["error_rate_percent"]
 baseline_error = baseline["error_rate_percent"]
@@ -169,7 +223,19 @@ cpu = latest["cpu_percent"]
 
 
 # ============================================================
-# RECOVERY CHECK
+# RECOVERY BASELINE
+# ============================================================
+
+RECOVERY_BASELINE = {
+    "error_rate_percent": 1.0,
+    "avg_latency_ms": 250,
+    "db_connections": 40,
+    "cpu_percent": 45,
+}
+
+
+# ============================================================
+# RECOVERY CHECKS
 # ============================================================
 
 error_recovered = (
@@ -211,7 +277,9 @@ incident_resolved = (
 # HEADER
 # ============================================================
 
-st.title("🚨 AI Incident Commander")
+st.title(
+    "🚨 AI Incident Commander"
+)
 
 st.caption(
     "AI-powered production incident investigation "
@@ -272,7 +340,9 @@ st.divider()
 # PRODUCTION METRICS
 # ============================================================
 
-st.subheader("📊 Production Metrics")
+st.subheader(
+    "📊 Production Metrics"
+)
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -433,7 +503,7 @@ if st.button(
         except Exception as e:
 
             st.error(
-                "AI investigation failed."
+                "❌ AI investigation failed."
             )
 
             st.exception(e)
@@ -443,7 +513,9 @@ if st.button(
 # AI REPORT
 # ============================================================
 
-analysis = st.session_state.analysis
+analysis = (
+    st.session_state.analysis
+)
 
 
 if analysis:
@@ -455,9 +527,9 @@ if analysis:
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # SUMMARY
-    # --------------------------------------------------------
+    # ========================================================
 
     st.markdown(
         "### 📋 Incident Summary"
@@ -471,9 +543,9 @@ if analysis:
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # ROOT CAUSE
-    # --------------------------------------------------------
+    # ========================================================
 
     st.markdown(
         "### 🎯 Root Cause"
@@ -487,9 +559,9 @@ if analysis:
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # CONFIDENCE
-    # --------------------------------------------------------
+    # ========================================================
 
     st.markdown(
         "### 🟢 Confidence"
@@ -500,22 +572,32 @@ if analysis:
         "UNKNOWN"
     )
 
+    confidence = str(
+        confidence
+    ).upper()
+
     if confidence == "HIGH":
 
-        st.success(confidence)
+        st.success(
+            confidence
+        )
 
     elif confidence == "MEDIUM":
 
-        st.warning(confidence)
+        st.warning(
+            confidence
+        )
 
     else:
 
-        st.info(confidence)
+        st.info(
+            confidence
+        )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # EVIDENCE
-    # --------------------------------------------------------
+    # ========================================================
 
     st.markdown(
         "### 🔍 Evidence"
@@ -526,16 +608,24 @@ if analysis:
         []
     )
 
-    for item in evidence:
+    if evidence:
 
-        st.markdown(
-            f"✓ {item}"
+        for item in evidence:
+
+            st.markdown(
+                f"✓ {item}"
+            )
+
+    else:
+
+        st.info(
+            "No evidence returned."
         )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # CODE REGRESSION
-    # --------------------------------------------------------
+    # ========================================================
 
     st.markdown(
         "### 🔧 Code Regression"
@@ -583,9 +673,9 @@ if analysis:
     )
 
 
-    # --------------------------------------------------------
-    # IMPACT
-    # --------------------------------------------------------
+    # ========================================================
+    # CUSTOMER IMPACT
+    # ========================================================
 
     st.markdown(
         "### ⚠️ Customer Impact"
@@ -599,9 +689,9 @@ if analysis:
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # MITIGATION
-    # --------------------------------------------------------
+    # ========================================================
 
     st.markdown(
         "### 🚑 Immediate Mitigation"
@@ -615,9 +705,9 @@ if analysis:
     )
 
 
-    # --------------------------------------------------------
-    # FOLLOW UP
-    # --------------------------------------------------------
+    # ========================================================
+    # FOLLOW-UP
+    # ========================================================
 
     st.markdown(
         "### 📋 Follow-up Investigation"
@@ -628,13 +718,21 @@ if analysis:
         []
     )
 
-    for index, action in enumerate(
-        follow_up,
-        start=1
-    ):
+    if follow_up:
 
-        st.markdown(
-            f"**{index}.** {action}"
+        for index, action in enumerate(
+            follow_up,
+            start=1
+        ):
+
+            st.markdown(
+                f"**{index}.** {action}"
+            )
+
+    else:
+
+        st.info(
+            "No follow-up actions returned."
         )
 
 
@@ -667,10 +765,6 @@ st.code(
 )
 
 
-# ------------------------------------------------------------
-# ROLLBACK ALREADY COMPLETED
-# ------------------------------------------------------------
-
 if rollback_completed:
 
     st.success(
@@ -682,11 +776,6 @@ if rollback_completed:
         f"**{active_deployment}**"
     )
 
-
-# ------------------------------------------------------------
-# ROLLBACK AVAILABLE
-# ------------------------------------------------------------
-
 else:
 
     if st.button(
@@ -694,28 +783,55 @@ else:
         type="secondary"
     ):
 
-        # ----------------------------------------------------
-        # Simulated rollback
-        # ----------------------------------------------------
+        try:
 
-        st.session_state.rollback_completed = True
+            rollback_result = (
+                rollback_deployment(
+                    rollback_version
+                )
+            )
 
-        st.session_state.active_deployment = (
-            rollback_version
-        )
+            if rollback_result.get(
+                "success",
+                False
+            ):
 
-        st.session_state.incident_resolved = False
+                st.session_state.rollback_completed = (
+                    True
+                )
 
-        st.success(
-            "✅ Rollback completed"
-        )
+                st.session_state.active_deployment = (
+                    rollback_version
+                )
 
-        st.info(
-            f"Current deployment: "
-            f"**{rollback_version}**"
-        )
+                st.session_state.incident_resolved = (
+                    False
+                )
 
-        st.rerun()
+                st.success(
+                    "✅ Rollback completed"
+                )
+
+                st.info(
+                    f"Current deployment: "
+                    f"**{rollback_version}**"
+                )
+
+                st.rerun()
+
+            else:
+
+                st.error(
+                    "❌ Rollback failed."
+                )
+
+        except Exception as e:
+
+            st.error(
+                "❌ Rollback failed."
+            )
+
+            st.exception(e)
 
 
 # ============================================================
@@ -741,9 +857,9 @@ if rollback_completed:
     )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # ERROR RATE
-    # --------------------------------------------------------
+    # ========================================================
 
     with recovery_col1:
 
@@ -764,9 +880,9 @@ if rollback_completed:
             )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # LATENCY
-    # --------------------------------------------------------
+    # ========================================================
 
     with recovery_col2:
 
@@ -787,9 +903,9 @@ if rollback_completed:
             )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # DB CONNECTIONS
-    # --------------------------------------------------------
+    # ========================================================
 
     with recovery_col3:
 
@@ -810,13 +926,16 @@ if rollback_completed:
             )
 
 
-    # --------------------------------------------------------
+    # ========================================================
     # DEPLOYMENT
-    # --------------------------------------------------------
+    # ========================================================
 
     with recovery_col4:
 
-        if rollback_completed:
+        if (
+            rollback_completed
+            and active_deployment == rollback_version
+        ):
 
             st.success(
                 f"✅ Deployment\n\n"
@@ -843,9 +962,9 @@ st.subheader(
 )
 
 
-# ------------------------------------------------------------
+# ============================================================
 # ALREADY RESOLVED
-# ------------------------------------------------------------
+# ============================================================
 
 if incident_resolved:
 
@@ -871,9 +990,9 @@ The incident is closed.
     )
 
 
-# ------------------------------------------------------------
+# ============================================================
 # ROLLBACK REQUIRED
-# ------------------------------------------------------------
+# ============================================================
 
 elif not rollback_completed:
 
@@ -883,9 +1002,9 @@ elif not rollback_completed:
     )
 
 
-# ------------------------------------------------------------
+# ============================================================
 # RECOVERY REQUIRED
-# ------------------------------------------------------------
+# ============================================================
 
 elif not metrics_recovered:
 
@@ -900,9 +1019,9 @@ elif not metrics_recovered:
     )
 
 
-# ------------------------------------------------------------
+# ============================================================
 # READY TO RESOLVE
-# ------------------------------------------------------------
+# ============================================================
 
 else:
 
@@ -915,7 +1034,9 @@ else:
         type="primary"
     ):
 
-        st.session_state.incident_resolved = True
+        st.session_state.incident_resolved = (
+            True
+        )
 
         st.success(
             "🟢 INCIDENT RESOLVED"
