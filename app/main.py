@@ -1,6 +1,23 @@
 import sys
 from pathlib import Path
 
+ROOT_DIR = Path(__file__).resolve().parent.parent
+
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+import streamlit as st
+
+from backend.ai_analysis import analyze_incident
+from backend.tools import (
+    get_incident,
+    get_metrics,
+    get_deployments,
+    search_logs,
+)
+import sys
+from pathlib import Path
+
 # ============================================================
 # PROJECT ROOT / IMPORT PATH
 # ============================================================
