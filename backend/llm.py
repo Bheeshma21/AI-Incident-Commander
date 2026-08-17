@@ -8,7 +8,7 @@ from groq import Groq
 load_dotenv()
 
 
-DEFAULT_MODEL = "llama-3.3-70b-versatile"
+DEFAULT_MODEL = "openai/gpt-oss-120b"
 MAX_RETRIES = 3
 RETRY_DELAY = 2
 
