@@ -6,7 +6,23 @@
 
 
 
-\### 1. Project Overview
+\*\*Live Demo:\*\*
+
+https://ai-incident-commander-pd2yxdpz8tb9nfcu6yye4c.streamlit.app/
+
+
+
+\*\*GitHub Repository:\*\*
+
+https://github.com/Bheeshma21/AI-Incident-Commander
+
+
+
+\---
+
+
+
+\# 1. Project Overview
 
 
 
@@ -27,6 +43,8 @@ The system helps engineers investigate production incidents by correlating:
 \* Source-code changes
 
 \* Customer impact
+
+\* Recovery status
 
 
 
@@ -86,73 +104,73 @@ AI Incident Commander provides a centralized investigation workflow that collect
 
 ```text
 
-&#x20;                   ┌─────────────────────┐
+&#x20;                    ┌─────────────────────┐
 
-&#x20;                   │    Streamlit UI     │
+&#x20;                    │    Streamlit UI     │
 
-&#x20;                   │  Incident Console   │
+&#x20;                    │  Incident Console   │
 
-&#x20;                   └──────────┬──────────┘
+&#x20;                    └──────────┬──────────┘
 
-&#x20;                              │
+&#x20;                               │
 
-&#x20;                              ▼
+&#x20;                               ▼
 
-&#x20;                   ┌─────────────────────┐
+&#x20;                    ┌─────────────────────┐
 
-&#x20;                   │ Incident Controller │
+&#x20;                    │ Incident Controller │
 
-&#x20;                   └──────────┬──────────┘
+&#x20;                    └──────────┬──────────┘
 
-&#x20;                              │
+&#x20;                               │
 
-&#x20;             ┌────────────────┼────────────────┐
+&#x20;              ┌────────────────┼────────────────┐
 
-&#x20;             ▼                ▼                ▼
+&#x20;              ▼                ▼                ▼
 
-&#x20;       ┌──────────┐     ┌──────────┐     ┌─────────────┐
+&#x20;        ┌──────────┐     ┌──────────┐     ┌─────────────┐
 
-&#x20;       │   Logs   │     │ Metrics  │     │ Deployments │
+&#x20;        │   Logs   │     │ Metrics  │     │ Deployments │
 
-&#x20;       └──────────┘     └──────────┘     └─────────────┘
+&#x20;        └──────────┘     └──────────┘     └─────────────┘
 
-&#x20;             │                │                │
+&#x20;              │                │                │
 
-&#x20;             └────────────────┼────────────────┘
+&#x20;              └────────────────┼────────────────┘
 
-&#x20;                              ▼
+&#x20;                               ▼
 
-&#x20;                   ┌─────────────────────┐
+&#x20;                    ┌─────────────────────┐
 
-&#x20;                   │ Source Code Analysis│
+&#x20;                    │ Source Code Analysis│
 
-&#x20;                   │ Healthy vs Incident │
+&#x20;                    │ Healthy vs Incident │
 
-&#x20;                   └──────────┬──────────┘
+&#x20;                    └──────────┬──────────┘
 
-&#x20;                              │
+&#x20;                               │
 
-&#x20;                              ▼
+&#x20;                               ▼
 
-&#x20;                   ┌─────────────────────┐
+&#x20;                    ┌─────────────────────┐
 
-&#x20;                   │        LLM          │
+&#x20;                    │        LLM          │
 
-&#x20;                   │ Root Cause Analysis │
+&#x20;                    │ Root Cause Analysis │
 
-&#x20;                   └──────────┬──────────┘
+&#x20;                    └──────────┬──────────┘
 
-&#x20;                              │
+&#x20;                               │
 
-&#x20;                              ▼
+&#x20;                               ▼
 
-&#x20;                   ┌─────────────────────┐
+&#x20;                    ┌─────────────────────┐
 
-&#x20;                   │ Incident Response   │
+&#x20;                    │ Incident Response   │
 
-&#x20;                   │ Rollback + Recovery │
+&#x20;                    │ Rollback + Recovery │
 
-&#x20;                   └─────────────────────┘
+&#x20;                    └─────────────────────┘
 
 ```
 
@@ -182,11 +200,11 @@ Example:
 
 
 
-\* Incident: INC-1042
+\* Incident: `INC-1042`
 
-\* Service: checkout-service
+\* Service: `checkout-service`
 
-\* Severity: SEV-2
+\* Severity: `SEV-2`
 
 \* Problem: Checkout API elevated 500 errors
 
@@ -220,7 +238,7 @@ The logs show:
 
 
 
-These are direct observations.
+These are direct observations from the supplied production evidence.
 
 
 
@@ -248,7 +266,7 @@ The incident evidence shows:
 
 
 
-These metrics support the connection-pool exhaustion hypothesis.
+The metrics support the connection-pool exhaustion hypothesis.
 
 
 
@@ -282,7 +300,7 @@ The deployment included changes related to:
 
 
 
-This makes the deployment a relevant investigation target.
+This makes `v1.8.3` a relevant investigation target.
 
 
 
@@ -336,27 +354,27 @@ The evidence forms a consistent chain:
 
 v1.8.3 deployment
 
-&#x20;       ↓
+&#x20;      ↓
 
 Database connection cleanup removed
 
-&#x20;       ↓
+&#x20;      ↓
 
 Connections remain open
 
-&#x20;       ↓
+&#x20;      ↓
 
 Connection pool usage increases
 
-&#x20;       ↓
+&#x20;      ↓
 
 Connection acquisition timeouts
 
-&#x20;       ↓
+&#x20;      ↓
 
 Checkout requests fail
 
-&#x20;       ↓
+&#x20;      ↓
 
 500 errors + increased latency
 
@@ -422,7 +440,19 @@ The AI is explicitly instructed to:
 
 
 
-This makes the AI analysis more reliable and auditable.
+The current AI integration uses the \*\*Groq API\*\* with:
+
+
+
+```text
+
+Model: openai/gpt-oss-120b
+
+```
+
+
+
+This makes the AI analysis evidence-driven and auditable rather than relying only on a general-purpose LLM response.
 
 
 
@@ -450,7 +480,7 @@ Instead, it reduces the amount of manual investigation required during an incide
 
 
 
-\### Target Users
+\## Target Users
 
 
 
@@ -466,7 +496,7 @@ Instead, it reduces the amount of manual investigation required during an incide
 
 
 
-\### Core Value
+\## Core Value
 
 
 
@@ -478,7 +508,7 @@ Instead of manually opening multiple systems, an engineer can use a centralized 
 
 
 
-\### Key Capabilities
+\## Key Capabilities
 
 
 
@@ -500,7 +530,7 @@ Instead of manually opening multiple systems, an engineer can use a centralized 
 
 
 
-\### Product Advantage
+\## Product Advantage
 
 
 
@@ -536,7 +566,7 @@ The investigation system can become the decision layer for controlled remediatio
 
 
 
-\### Potential Capabilities
+\## Potential Capabilities
 
 
 
@@ -560,7 +590,7 @@ The investigation system can become the decision layer for controlled remediatio
 
 
 
-\### Safety Model
+\## Safety Model
 
 
 
@@ -608,7 +638,7 @@ This provides automation while keeping humans in control of high-impact producti
 
 
 
-\### Long-Term Opportunity
+\## Long-Term Opportunity
 
 
 
@@ -692,7 +722,7 @@ Together, these observations make database connection handling a strong investig
 
 
 
-The deployment timeline shows that v1.8.3 was deployed before the incident.
+The deployment timeline shows that `v1.8.3` was deployed before the incident.
 
 
 
@@ -700,7 +730,7 @@ The deployment specifically changed database connection handling.
 
 
 
-Therefore, v1.8.3 becomes the primary regression candidate.
+Therefore, `v1.8.3` becomes the primary regression candidate.
 
 
 
@@ -724,7 +754,7 @@ This directly demonstrates the code regression.
 
 
 
-Therefore, the root-cause confidence is HIGH.
+Therefore, the root-cause confidence is \*\*HIGH\*\*.
 
 
 
@@ -736,7 +766,7 @@ Therefore, the root-cause confidence is HIGH.
 
 
 
-The safest immediate mitigation is to roll back to the previous stable version, v1.8.2.
+The safest immediate mitigation is to roll back to the previous stable version, `v1.8.2`.
 
 
 
@@ -878,6 +908,10 @@ This is important because AI output should not be treated as reliable structured
 
 
 
+The application also checks for required configuration such as the Groq API key before attempting AI analysis.
+
+
+
 \---
 
 
@@ -886,27 +920,45 @@ This is important because AI output should not be treated as reliable structured
 
 
 
-The project includes automated tests using pytest.
+The project includes automated tests using `pytest`.
 
 
 
-The checkout service test verifies that a successful checkout returns the expected status and user ID.
+The current test suite covers:
 
 
 
-Current test result:
+\* LLM integration
+
+\* Checkout service behavior
+
+
+
+Latest test result:
 
 
 
 ```text
 
-1 passed
+=============================================
+
+2 passed in 2.60s
+
+=============================================
 
 ```
 
 
 
-Python compilation checks were also performed on the backend modules.
+The LLM integration test verifies that the configured Groq model can successfully generate a response.
+
+
+
+The checkout service test verifies that the checkout implementation behaves as expected.
+
+
+
+Python compilation checks were also performed on the relevant Python modules.
 
 
 
@@ -918,7 +970,7 @@ Python compilation checks were also performed on the backend modules.
 
 
 
-\### Frontend
+\## Frontend
 
 
 
@@ -926,7 +978,7 @@ Python compilation checks were also performed on the backend modules.
 
 
 
-\### Backend
+\## Backend
 
 
 
@@ -934,15 +986,17 @@ Python compilation checks were also performed on the backend modules.
 
 
 
-\### AI
+\## AI
 
 
 
-\* Groq LLM
+\* Groq API
+
+\* `openai/gpt-oss-120b`
 
 
 
-\### Configuration
+\## Configuration
 
 
 
@@ -950,7 +1004,7 @@ Python compilation checks were also performed on the backend modules.
 
 
 
-\### Testing
+\## Testing
 
 
 
@@ -958,7 +1012,7 @@ Python compilation checks were also performed on the backend modules.
 
 
 
-\### Version Control
+\## Version Control
 
 
 
@@ -989,6 +1043,8 @@ AI-Incident-Commander/
 │
 
 ├── backend/
+
+│   ├── \_\_init\_\_.py
 
 │   ├── ai\_analysis.py
 
@@ -1022,10 +1078,6 @@ AI-Incident-Commander/
 
 │
 
-├── frontend/
-
-│
-
 ├── requirements.txt
 
 ├── README.md
@@ -1042,49 +1094,133 @@ AI-Incident-Commander/
 
 
 
-\# 14. Final Outcome
+\# 14. Incident Demonstration — INC-1042
 
 
 
-AI Incident Commander successfully demonstrates an evidence-driven production incident workflow.
+The demonstration incident is:
 
 
 
-For Incident INC-1042, the system identifies:
+\*\*Incident:\*\* `INC-1042`
 
 
 
-\*\*Root Cause:\*\*
-
-Database connection leak caused by missing connection cleanup in v1.8.3.
+\*\*Service:\*\* Checkout API
 
 
 
-\*\*Confidence:\*\*
-
-HIGH
+\*\*Severity:\*\* SEV-2
 
 
 
-\*\*Mitigation:\*\*
-
-Rollback to v1.8.2.
+\*\*Initial deployment:\*\* `v1.8.3`
 
 
 
-\*\*Recovery:\*\*
-
-Production metrics recover after rollback.
+\*\*Stable deployment:\*\* `v1.8.2`
 
 
 
-\*\*Resolution:\*\*
-
-The incident can be resolved only after recovery checks pass.
+\## Observed Symptoms
 
 
 
-The project demonstrates how an AI system can assist engineers with production incident investigation while keeping remediation decisions controlled and evidence-based.
+\* Elevated HTTP 500 errors
+
+\* Increased API latency
+
+\* Increased database connection usage
+
+\* Database connection pool exhaustion
+
+\* Connection acquisition timeouts
+
+
+
+\## Root Cause
+
+
+
+\*\*Missing `connection.close()` in the refactored `process\_checkout` implementation introduced in `v1.8.3`.\*\*
+
+
+
+The missing cleanup caused database connections to remain open, eventually exhausting the connection pool.
+
+
+
+\## Confidence
+
+
+
+\*\*HIGH\*\*
+
+
+
+The conclusion is supported by:
+
+
+
+\* Production logs
+
+\* Production metrics
+
+\* Deployment history
+
+\* Healthy source implementation
+
+\* Incident source implementation
+
+
+
+\## Immediate Mitigation
+
+
+
+Rollback to:
+
+
+
+```text
+
+v1.8.2
+
+```
+
+
+
+\## Recovery Verification
+
+
+
+After rollback, the application verifies:
+
+
+
+\* Error rate recovery
+
+\* Latency recovery
+
+\* Database connection recovery
+
+\* Stable deployment
+
+
+
+\## Final State
+
+
+
+```text
+
+INCIDENT RESOLVED
+
+```
+
+
+
+The incident is resolved only after the recovery checks pass.
 
 
 
@@ -1092,7 +1228,89 @@ The project demonstrates how an AI system can assist engineers with production i
 
 
 
-\# 15. Future Improvements
+\# 15. Evidence-Based Technical Decision
+
+
+
+The system does not identify the root cause from a single signal.
+
+
+
+Instead, it correlates multiple independent evidence sources.
+
+
+
+```text
+
+Logs
+
+&#x20; +
+
+Metrics
+
+&#x20; +
+
+Deployment History
+
+&#x20; +
+
+Source-Code Difference
+
+&#x20; =
+
+High-Confidence Root Cause
+
+```
+
+
+
+For INC-1042:
+
+
+
+```text
+
+Logs
+
+→ Connection pool exhaustion
+
+
+
+Metrics
+
+→ Increased DB connections + increased errors + increased latency
+
+
+
+Deployment
+
+→ v1.8.3 changed database connection handling
+
+
+
+Code comparison
+
+→ connection.close() removed
+
+
+
+Conclusion
+
+→ Database connection leak
+
+```
+
+
+
+This evidence chain is the core design principle of AI Incident Commander.
+
+
+
+\---
+
+
+
+\# 16. Future Improvements
 
 
 
@@ -1130,7 +1348,57 @@ A production-ready version could add:
 
 
 
-\# 16. Submission Summary
+\# 17. Final Outcome
+
+
+
+AI Incident Commander successfully demonstrates an evidence-driven production incident workflow.
+
+
+
+For Incident `INC-1042`, the system identifies:
+
+
+
+\*\*Root Cause:\*\*
+
+Database connection leak caused by missing connection cleanup in `v1.8.3`.
+
+
+
+\*\*Confidence:\*\*
+
+HIGH
+
+
+
+\*\*Mitigation:\*\*
+
+Rollback to `v1.8.2`.
+
+
+
+\*\*Recovery:\*\*
+
+Production recovery is verified using error rate, latency, database connections, and deployment state.
+
+
+
+\*\*Resolution:\*\*
+
+The incident can be resolved only after recovery checks pass.
+
+
+
+The project demonstrates how an AI system can assist engineers with production incident investigation while keeping remediation decisions controlled and evidence-based.
+
+
+
+\---
+
+
+
+\# 18. Submission Summary
 
 
 
@@ -1162,13 +1430,73 @@ The project demonstrates:
 
 \* Controlled incident resolution
 
+\* LLM integration testing
+
 \* Automated testing
+
+\* Streamlit deployment
 
 \* Documentation
 
 \* Product strategy
 
 \* Evidence-based technical decision making
+
+
+
+\---
+
+
+
+\# 19. Demo Links
+
+
+
+\*\*Live Streamlit Application\*\*
+
+
+
+https://ai-incident-commander-pd2yxdpz8tb9nfcu6yye4c.streamlit.app/
+
+
+
+\*\*GitHub Repository\*\*
+
+
+
+https://github.com/Bheeshma21/AI-Incident-Commander
+
+
+
+\---
+
+
+
+\# 20. Conclusion
+
+
+
+AI Incident Commander demonstrates a practical approach to using AI for production incident investigation.
+
+
+
+Instead of asking an LLM to guess the cause of an incident, the system first collects and correlates operational evidence, including logs, metrics, deployments, and source-code differences.
+
+
+
+The LLM then analyzes this structured evidence and produces a root-cause assessment with confidence, evidence, customer impact, mitigation, and follow-up recommendations.
+
+
+
+The incident-response workflow extends beyond diagnosis by supporting rollback and recovery verification.
+
+
+
+For the demonstrated SEV-2 checkout incident, the system successfully identifies the database connection leak introduced in `v1.8.3`, recommends rollback to `v1.8.2`, verifies recovery, and reaches a controlled incident resolution state.
+
+
+
+The project therefore demonstrates both the technical implementation and the product direction of an evidence-driven AI incident response system.
 
 
 
